@@ -1,0 +1,24 @@
+{
+  "name": "signalk-fixed-position",
+  "version": "1.0.0",
+  "description": "Fixed position plugin for Signal K",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itemir/signalk-fixed-position.git"
+  },
+  "keywords": [
+    "signalk-node-server-plugin"
+  ],
+  "author": "Ilker Temir",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/itemir/signalk-fixed-position/issues"
+  },
+  "homepage": "https://github.com/itemir/signalk-fixed-position#readme",
+  "dependencies": {
+  }
+}
