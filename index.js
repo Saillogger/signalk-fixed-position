@@ -1,5 +1,6 @@
 /*
  * Copyright 2024 Ilker Temir <ilker@ilkertemir.com>
+ * Copyright 2025 Saillogger LLC (info@saillogger.com)
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,58 +14,93 @@
  * limitations under the License.
  */
 
-
-module.exports = function(app) {
+module.exports = function (app) {
   var plugin = {};
-  var positionPublish;
+  var unsubscribes = [];
+  var timer = null;
+  var lastUpdate = Date.now();  // Track timestamp internally
 
   plugin.id = "signalk-fixed-position";
   plugin.name = "Fixed Position";
-  plugin.description = "Plugin to submit fixed position reports";
+  plugin.description = "Plugin to submit last known or fixed position reports";
 
   plugin.schema = {
     type: 'object',
-    required: ['latitude', 'longitude'],
     properties: {
-      latitude: {
-        type: "number",
-        title: "Latitude to publish"
+      interval: {
+        type: 'number',
+        title: 'Update interval in seconds',
+        default: 15
       },
-      longitude: {
-        type: "number",
-        title: "Longitude to publish"
-      },
-    }
-  }
-
-  plugin.start = function(options) {
-    if ((!options.latitude) || (!options.longitude)) {
-      app.error('Latitude and Longitude are required')
-      return;
-    }
-    positionPublish = setInterval(function () {
-      app.debug(`Publish position (${options.latitude}, ${options.longitude})`);
-      let values = [
-        {
-          path: 'navigation.position',
-          value: {
-            'longitude': options.longitude,
-            'latitude': options.latitude
-          }
+      position: {
+        type: 'object',
+        title: 'Stored Position',
+        properties: {
+          latitude: { type: 'number' },
+          longitude: { type: 'number' }
         }
-      ]
-      app.handleMessage(plugin.id, {
-        updates: [{
-            values: values
-          }]
-      });
-    }, 30*1000);
-  }
+      }
+    }
+  };
 
-  plugin.stop =  function() {
-    clearInterval(positionPublish);
-    app.setPluginStatus('Pluggin stopped');
+  plugin.start = function (options) {
+    app.subscriptionmanager.subscribe({
+      context: 'vessels.self',
+      subscribe: [{
+        path: 'navigation.position',
+        period: 1000
+      }]
+    }, unsubscribes, 
+    error => {
+      app.error('Position subscription error:' + error);
+    },
+    delta => {
+      if (!delta.updates)
+        return;
+      delta.updates.forEach(update => {
+        update.values.forEach(value => {
+          if (value.path === 'navigation.position') {
+            options.position = {
+              latitude: value.value.latitude,
+              longitude: value.value.longitude
+            };
+            lastUpdate = Date.now();  // Update internal timestamp
+            app.savePluginOptions(options, () => {
+              app.debug(`Position saved ${options.position.latitude}, ${options.position.longitude}.`);
+	    });
+          }
+        });
+      });
+    });
+
+    timer = setInterval(() => {
+      if (Date.now() - lastUpdate > options.interval * 1000) {
+        if (options.position) {
+          app.debug(`Emitting position ${options.position.latitude}, ${options.position.longitude}.`);
+          app.handleMessage(plugin.id, {
+            updates: [{
+              values: [{
+                path: 'navigation.position',
+                value: {
+                  latitude: options.position.latitude,
+                  longitude: options.position.longitude
+                }
+              }]
+            }]
+          });
+        }
+      }
+    }, options.interval * 1000);
+  };
+
+  plugin.stop = function () {
+    unsubscribes.forEach(f => f());
+    unsubscribes = [];
+    if (timer) {
+      clearInterval(timer);
+    }
   };
 
   return plugin;
-}
+};
+

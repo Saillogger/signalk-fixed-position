@@ -1,6 +1,6 @@
 {
   "name": "signalk-fixed-position",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Fixed position plugin for Signal K",
   "main": "index.js",
   "scripts": {
@@ -8,17 +8,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/itemir/signalk-fixed-position.git"
+    "url": "git+https://github.com/saillogger/signalk-fixed-position.git"
   },
+  "signalk-plugin-enabled-by-default": true,
   "keywords": [
     "signalk-node-server-plugin"
   ],
-  "author": "Ilker Temir",
+  "author": "Saillogger LLC",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/itemir/signalk-fixed-position/issues"
+    "url": "https://github.com/saillogger/signalk-fixed-position/issues"
   },
-  "homepage": "https://github.com/itemir/signalk-fixed-position#readme",
+  "homepage": "https://github.com/saillogger/signalk-fixed-position#readme",
   "dependencies": {
   }
 }

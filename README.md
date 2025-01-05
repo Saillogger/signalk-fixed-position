@@ -1,7 +1,9 @@
-# Fixed Position Plugin
+# Position Keeper Plugin for Signal K
 
-This is a simple plugin that publishes a static `navigation.position` every 30 seconds. Latitude and longitude are set through the plugin configuration.
+Position Keeper is a zero-configuration Signal K plugin that maintains vessel position reporting during GPS signal loss. It automatically stores the last known position and continues to emit location data at configurable intervals when GPS becomes unavailable. This plug-and-play solution ensures continuous operation of position-dependent systems without requiring manual setup or intervention.
 
-This plugin is useful when the GPS source is turned off (e.g., at a marina) but you want to keep using plugins that require position data (such as the Saillogger or Windy plugins).
-
-You should set a lower priority for positions emitted by this plugin to ensure they are ignored when your actual GPS source is powered on.
+## Purpose
+- Maintains position data during GPS signal loss
+- Stores last known position automatically
+- Emits stored position on configurable intervals
+- Ensures continuous position reporting even after boat GPS sources are turned off
